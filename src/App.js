@@ -56,7 +56,34 @@ class App extends React.Component {
     this.expression = ''
     this.resultstr = '0'
     this.start = true;
+  
   }
+
+  componentDidMount() {
+    window.addEventListener('keypress', this.handleKeyPress);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('keypress', this.handleKeyPress);
+  }
+
+  handleKeyPress = (event) => {
+    const key = event.key;
+  
+    if (key === 'Enter') {
+      this.equals();
+    } else if (key === 'Escape') {
+      this.clear();
+    } else if (
+      ['/', 'x', '+', '-', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.'].includes(key)
+    ) {
+      this.handleClick({ target: { innerText: key } });
+    }
+  
+  };
+  
+    
+  
 
   handleClick = (event) => {
     let buttonId = event.target.innerText;
@@ -74,27 +101,33 @@ class App extends React.Component {
       buttonId = '*';
     }
 
-    this.expression = this.expression + " "+ buttonId;
+    this.expression = this.expression + buttonId;
+
     this.setState({
       expressionDisplay: "Ans = " + this.resultstr,
       currentDisplay: this.expression
     });
 
-  }
+  };
 
 
 
   equals = () => {
-    const result = math.evaluate(this.expression);
-    this.setState({
-      // expressionDisplay: result.toString(),
-      expressionDisplay: this.expression + " = ",
-      currentDisplay: result.toString(),
-    });
-    this.resultstr = result.toString();
-    this.expression = this.resultstr;
-
-  }
+    try {
+      const result = math.evaluate(this.expression);
+      this.setState({
+        expressionDisplay: this.expression + " = ",
+        currentDisplay: result.toString(),
+      });
+      this.resultstr = result.toString();
+      this.expression = this.resultstr;
+    } catch (error) {
+      this.setState({
+        expressionDisplay: "Invalid Expression",
+        currentDisplay: ""
+      });
+    }
+  };
 
 
 
@@ -113,7 +146,7 @@ class App extends React.Component {
         handleClick={this.handleClick}
         expressionDisplay={this.state.expressionDisplay}
         currentDisplay={this.state.currentDisplay}
-        calcClick={this.calcClick}
+        
         equals={this.equals}
         clear={this.clear}
       />
